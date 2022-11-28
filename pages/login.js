@@ -7,11 +7,7 @@ function Login() {
   };
   return (
     <div>
-      <LoginForm
-        submitFunc={(values) => {
-          console.log("Form Submitted", values);
-        }}
-      />
+      <LoginForm />
     </div>
   );
 }

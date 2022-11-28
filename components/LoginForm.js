@@ -10,7 +10,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/router";
 
-export default function LoginForm({ submitFunc }) {
+export default function LoginForm() {
   const [show, setShow] = useState(false);
   const router = useRouter();
 
@@ -25,11 +25,6 @@ export default function LoginForm({ submitFunc }) {
     if (status.ok) {
       router.push(status.url);
     }
-  };
-  const mySubmit = (e) => {
-    e.preventDefault();
-    console.log("values");
-    submitFunc("values");
   };
   const formik = useFormik({
     initialValues: { email: "", password: "" },
@@ -67,13 +62,7 @@ export default function LoginForm({ submitFunc }) {
         </div>
 
         {/* form */}
-        <form
-          className="flex flex-col gap-5"
-          onSubmit={submitFunc({
-            email: formik.values.email,
-            password: formik.values.password,
-          })}
-        >
+        <form className="flex flex-col gap-5" onSubmit={formik.handleSubmit}>
           <div
             className={`${styles.input_group} ${
               formik.errors.email && formik.touched.email

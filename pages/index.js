@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
+import {useRouter} from "next/router";
 import { useSession, signOut, getSession } from "next-auth/react";
 
 import styles from "../styles/Home.module.css";
@@ -7,7 +8,9 @@ import React from "react";
 
 export default function Home() {
   const { data: session } = useSession();
+  const router = useRouter();
 
+  console.log({router})
   const handleSignOut = () => {
     signOut();
   };

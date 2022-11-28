@@ -1,15 +1,20 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import LoginForm from "../components/LoginForm";
 import "@testing-library/jest-dom";
-import user from "@testing-library/user-event";
+import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw";
+import * as nextRouter from 'next/router'
+import { createMockRouter } from "../test-utils/createMockRouter";
+import { RouterContext } from 'next/dist/shared/lib/router-context';
 
 describe("Login", () => {
   const onSubmit = jest.fn();
-
+  const user = userEvent.setup()
+  nextRouter.useRouter=jest.fn()
   beforeEach(() => {
     onSubmit.mockClear();
     render(<LoginForm submitFunc={onSubmit} />);
+
   });
 
   it("should render title and button and 2 input fields", async () => {
@@ -27,49 +32,37 @@ describe("Login", () => {
     expect(username).not.toBeInTheDocument();
     // expect(link).toBeInTheDocument(); //pass
 
-    user.type(email, "test@test333.com");
-    user.type(password, "123456789");
+    await user.type(email, "test@test.com");
+    await user.type(password, "123456789");
     const button = screen.getByRole("button", { name: /Login/i });
-
+    expect(email.value).toBe("test@test.com")
     expect(button).toBeInTheDocument();
-    user.click(button);
+    //nextRouter.useRouter.mockImplementation(()=>({route:'/'}))
+    const router = createMockRouter({pathname: '/'})
+    render(<RouterContext.Provider value={router}><LoginForm submitFunc={onSubmit} /></RouterContext.Provider>);
+    user.click(button,{skipHover: true});
 
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith({
-        email: "",
-        password: "",
-      });
-    });
+    expect(router.push).toHaveBeenCalledWith('/')
+  });
 
-    expect(onSubmit).toHaveBeenCalledTimes(1);
-
-    /*
+  it("onSubmit button click", () => {
     
-    const loggedInPage = await screen.findByRole("heading", {
-      name: /authorize user homepage/i,
-    });
-    const signOutButton = screen.getByRole("button", { name: /sign out/i });
-
-    expect(loggedInPage).toBeInTheDocument();
-
-    expect(signOutButton).toBeInTheDocument(); */
-  });
-
-  /* describe("onSubmit", () => {
-    it("submttin", async () => {
-      const onSubmit = jest.fn();
-
-      render(<LoginForm submitFunc={onSubmit} />);
-
-      const button = screen.getByRole("button", { name: /login/i });
-      expect(button).toBeInTheDocument();
-
-      //expect(button).toHaveAttribute("disabled");
-
-      user.click(button);
-
-      expect(onSubmit).toHaveBeenCalledTimes(1);
     });
   });
-   */
-});
+  
+
+
+/* 
+describe('ResultsProductPage', () => {
+  const useRouter = jest.spyOn(require('next/router'), 'useRouter')
+
+  it('renders - display mode list', () => {
+    useRouter.mockImplementationOnce(() => ({
+      query: { product: 'coffee' },
+    }))
+    const { container } = render(
+      <ResultsProductPage items={[{ name: 'mocha' }]} />
+    )
+    expect(container).toMatchSnapshot()
+  })
+}) */
